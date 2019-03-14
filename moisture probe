@@ -1,0 +1,60 @@
+#define moistPin 0
+#define RPin 4
+#define Gpin 3
+#define Bpin 2
+
+int moistVal = 0;
+int calibrated = 545; //moistVal returned when probes were in direct contact
+int tooDry = 0.40 * calibrated; //set low parameter for plant 40% of calibrated
+int tooWet = 0.65 * calibrated; //set high parameter for plant 65% of calibrated
+
+void setup(){
+  pinMode(RPin, OUTPUT);
+  pinMode(GPin, OUTPUT);
+  pinMode(BPin, OUTPUT);
+  
+  Serial.begin(9600);
+  digitalWrite(RPin, LOW);
+  digitalWrite(GPin, LOW);
+  digitalWrite(BPin, LOW);
+  
+  delay(1000);
+  
+  Serial.print("Too dry = ");
+  Serial.println(tooDry);
+  Serial.print("Too wet = ");
+  Serial.println(tooWet);
+}
+
+
+void loop(){
+  moistVal = analogRead(moistPin);
+  Serial.print("Moisture value = ");
+  Serial.println(moistVal);
+  int percent = ((float)moistVal / (float)calibrated) * 100.0;
+  Serial.print(percent);
+  Serial.print("% Moisture - ");
+  
+  if (moistVal <= tooDry) {
+    Serial.println("Soil is too dry: Water me please");
+    digitalWrite(RPin, HIGH);
+    digitalWrite(GPin, LOW);
+    digitalWrite(BPin, LOW);
+  }
+  
+  else if (moistVal >= tooWet) {
+    Serial.println("Soil is too wet: Give me a break!");
+    digitalWrite(BPin, HIGH);
+    digitalWrite(RPin, LOW);
+    digitalWrite(GPin, LOW);
+  }
+  
+  else {
+    Serial.println("All is good for now");
+    digitalWrite(GPin, HIGH);
+    digitalWrite(RPin, LOW);
+    digitalWrite(BPin, LOW);
+  }
+  
+  delay(5000);
+}
